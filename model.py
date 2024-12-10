@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.distributions as tdist
-
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 class SocialCellLocal(nn.Module):
     def __init__(self,
@@ -22,6 +22,9 @@ class SocialCellLocal(nn.Module):
                                        spatial_output,
                                        1,
                                        padding=0)
+        
+        # add new layer
+        self.spatial = nn.Conv1d(spatial_input, spatial_output, 2, padding=1, dilation=2)
 
         #Temporal Section
         self.highway = nn.Conv1d(temporal_input, temporal_output, 1, padding=0)
@@ -39,7 +42,11 @@ class SocialCellLocal(nn.Module):
                       2).reshape(v_shape[0] * v_shape[3], v_shape[1],
                                  v_shape[2])  #= PED*batch,  [x,y], TIME,
         v_res = self.highway_input(v)
-        v = self.feat_act(self.feat(v)) + v_res
+        v = self.feat_act(self.spatial(v)) + v_res
+
+        # new layer
+        # v_larger_tempral_range = self.spatial(v)
+        # v += v_larger_tempral_range
 
         #Temporal Section
         v = v.permute(0, 2, 1)
@@ -72,6 +79,11 @@ class SocialCellGlobal(nn.Module):
                                        spatial_output,
                                        1,
                                        padding=0)
+        
+        # add new layer
+        self.spatial = nn.Conv2d(spatial_input, spatial_output, (1, 2), padding=(0, 1), dilation=(1, 2))
+
+
         #Temporal Section
         self.highway = nn.Conv2d(temporal_input, temporal_output, 1, padding=0)
 
@@ -102,7 +114,11 @@ class SocialCellGlobal(nn.Module):
         #Spatial Section
         v_ped = self.ped(v)
         v_res = self.highway_input(v)
-        v = self.feat_act(self.feat(v)) + v_res
+        v = self.feat_act(self.spatial(v)) + v_res
+
+        # new layer
+        # v_larger_tempral_range = self.spatial(v)
+        # v += v_larger_tempral_range
 
         #Temporal Section
         v = v.permute(0, 2, 1, 3)
@@ -125,7 +141,7 @@ class SocialImplicit(nn.Module):
                  noise_weight=[0.05, 1, 4, 8]):
         super(SocialImplicit, self).__init__()
 
-        self.bins = torch.Tensor(bins).cuda()
+        self.bins = torch.Tensor(bins).to(device)
 
         self.implicit_cells = nn.ModuleList([
             SocialCellGlobal(spatial_input=spatial_input,

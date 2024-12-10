@@ -12,6 +12,7 @@ from model import SocialImplicit
 from amd_amv_kde_metrics import calc_amd_amv, kde_lossf
 from CFG import CFG
 
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 def test(KSTEPS=20):
     global loader_test, model, ROBUSTNESS
@@ -27,7 +28,7 @@ def test(KSTEPS=20):
     for batch in loader_test:
         step += 1
         #Get data
-        batch = [tensor.cuda().double() for tensor in batch]
+        batch = [tensor.to(device).double() for tensor in batch]
         obs_traj, pred_traj_gt, obs_traj_rel, pred_traj_gt_rel, non_linear_ped,\
          loss_mask,V_obs,A_obs,V_tr,A_tr = batch
 
@@ -112,12 +113,17 @@ for ROBUSTNESS in [0]:  #, -0.1, -0.01, +0.01, +0.1]:
     print("*" * 30)
 
     paths = [
-        './checkpoint/social-implicit-eth',
-        './checkpoint/social-implicit-hotel',
-        './checkpoint/social-implicit-zara1',
-        './checkpoint/social-implicit-zara2',
-        './checkpoint/social-implicit-univ',
-        './checkpoint/social-implicit-sdd',
+        # './checkpoint/social-implicit-eth',
+        # './checkpoint/social-implicit-hotel',
+        # './checkpoint/social-implicit-zara1',
+        # './checkpoint/social-implicit-zara2',
+        # './checkpoint/social-implicit-univ',
+        # './checkpoint/social-implicit-sdd',
+        # './checkpoint/social_implicit_market_test_11-18',
+        # './checkpoint/social_implicit_market_test_11-19'
+        './checkpoint/social_implicit_aicity_test_11-30_step_scheduler',
+        './checkpoint/social_implicit_aicity_test_11-30_cos_scheduler',
+        './checkpoint/social_implicit_aicity_test_11-29',
     ]
     KSTEPS = 1000
     EASY_RESULTS = []
@@ -180,10 +186,10 @@ for ROBUSTNESS in [0]:  #, -0.1, -0.01, +0.01, +0.1]:
                                    temporal_input=CFG["temporal_input"],
                                    temporal_output=CFG["temporal_output"],
                                    bins=CFG["bins"],
-                                   noise_weight=noise_weight).cuda()
+                                   noise_weight=noise_weight).to(device)
 
             model.load_state_dict(torch.load(model_path))
-            model = model.cuda().double()
+            model = model.to(device).double()
             model.eval()
 
             ade_ = 999999

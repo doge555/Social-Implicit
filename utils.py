@@ -155,6 +155,7 @@ class TrajectoryDataset(Dataset):
             loss_mask_list = []
             non_linear_ped = []
             for path in all_files:
+                print("path: ", path)
                 data = read_file(path, delim)
                 frames = np.unique(data[:, 0]).tolist()
                 frame_data = []
@@ -181,6 +182,7 @@ class TrajectoryDataset(Dataset):
                     for _, ped_id in enumerate(peds_in_curr_seq):
                         curr_ped_seq = curr_seq_data[curr_seq_data[:, 1] ==
                                                      ped_id, :]
+                        print("curr_ped_seq: ", curr_ped_seq)
                         # curr_ped_seq = np.around(curr_ped_seq, decimals=4)
                         pad_front = frames.index(curr_ped_seq[0, 0]) - idx
                         pad_end = frames.index(curr_ped_seq[-1, 0]) - idx + 1
@@ -193,6 +195,9 @@ class TrajectoryDataset(Dataset):
                         rel_curr_ped_seq[:, 1:] = \
                             curr_ped_seq[:, 1:] - curr_ped_seq[:, :-1]
                         _idx = num_peds_considered
+                        # print("_idx: ", _idx)
+                        # print("pad_front: ", pad_front)
+                        # print("pad_end: ", pad_end)
                         curr_seq[_idx, :, pad_front:pad_end] = curr_ped_seq
                         curr_seq_rel[_idx, :,
                                      pad_front:pad_end] = rel_curr_ped_seq

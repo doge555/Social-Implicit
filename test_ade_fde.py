@@ -87,12 +87,14 @@ for ROBUSTNESS in [0]:  #[-0.1, -0.01, 0, +0.01, +0.1]:
     print("*" * 30)
 
     paths = [
-        './checkpoint/social-implicit-eth',
-        './checkpoint/social-implicit-hotel',
-        './checkpoint/social-implicit-zara1',
-        './checkpoint/social-implicit-zara2',
-        './checkpoint/social-implicit-univ',
-        './checkpoint/social-implicit-sdd',
+        # './checkpoint/social-implicit-eth',
+        # './checkpoint/social-implicit-hotel',
+        # './checkpoint/social-implicit-zara1',
+        # './checkpoint/social-implicit-zara2',
+        # './checkpoint/social-implicit-univ',
+        # './checkpoint/social-implicit-sdd',
+        './checkpoint/social_implicit_market_test_11-18',
+        './checkpoint/social_implicit_market_test_11-19'
     ]
     KSTEPS = 20
 
