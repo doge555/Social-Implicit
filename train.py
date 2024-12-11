@@ -14,7 +14,6 @@ from model import SocialImplicit
 from trajectory_augmenter import TrajectoryAugmenter
 from CFG import CFG
 
-device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 parser = argparse.ArgumentParser()
 
 #Social-Loss specific parameters
@@ -167,7 +166,7 @@ model = SocialImplicit(spatial_input=CFG["spatial_input"],
                        temporal_input=CFG["temporal_input"],
                        temporal_output=CFG["temporal_output"],
                        bins=CFG["bins"],
-                       noise_weight=noise_weight).to(device).double()
+                       noise_weight=noise_weight).cuda().double()
 
 #Optimizer and Schedule
 optimizer = optim.SGD(model.parameters(), lr=args.lr)
@@ -208,7 +207,7 @@ def train(epoch):
         V_obs, V_tr, obs_traj, pred_traj_gt = trajaugmenter.augment(
             V_obs, V_tr, obs_traj, pred_traj_gt)
 
-        V_obs, V_tr, A_obs, obs_traj = V_obs.to(device).double(), V_tr.to(device).double(), A_obs.to(device).double(), obs_traj.to(device).double()
+        V_obs, V_tr, A_obs, obs_traj = V_obs.cuda().double(), V_tr.cuda().double(), A_obs.cuda().double(), obs_traj.cuda().double()
 
         optimizer.zero_grad()
 
@@ -258,7 +257,7 @@ def vald():
             obs_traj, pred_traj_gt, obs_traj_rel, pred_traj_gt_rel, non_linear_ped, loss_mask, V_obs, A_obs, V_tr, A_tr = batch
 
             #Forward
-            V_obs, V_tr, A_obs, obs_traj = V_obs.to(device).double(), V_tr.to(device).double(), A_obs.to(device).double(), obs_traj.to(device).double()
+            V_obs, V_tr, A_obs, obs_traj = V_obs.cuda().double(), V_tr.cuda().double(), A_obs.cuda().double(), obs_traj.cuda().double()
 
             V_pred = model(V_obs.permute(0, 3, 1, 2), obs_traj)
             V_pred = V_pred.permute(0, 2, 3, 1)
